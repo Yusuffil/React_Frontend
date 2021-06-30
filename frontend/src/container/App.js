@@ -4,40 +4,24 @@ import UserSignupPage from '../pages/UserSignUpPage';
 import LoginPage from '../pages/LoginPage';
 import HomePage from '../pages/HomePage';
 import UserPage from '../pages/UserPage';
-import{ HashRouter, Route, Redirect, Switch } from 'react-router-dom'
+import { HashRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
 import TopBar from '../components/TopBar';
 
 class App extends React.Component {
-  state={
-    isLoggedIn: false,
-    username: undefined
-};
-
-  onLoginSuccess = (username) => {
-    this.setState({
-      username,
-      isLoggedIn: true
-    });
-  };
-
-  onLogoutSuccess = () =>{
-    this.setState({
-      isLoggedIn: false,
-      username: undefined
-    })
-  }
+ 
   render(){
-    const { isLoggedIn, username } = this.state;
+    const isLoggedIn = false;
+    const username = undefined;
+   // const { isLoggedIn, username } = this.state;
     return (
       <div>   
-          <HashRouter>
-            <TopBar username={username} isLoggedIn={isLoggedIn} onLogoutSuccess={this.onLogoutSuccess}/>
+          <Router>
+            <TopBar/>
           <Switch>
           <Route exact path="/" component={HomePage}/>
-         
          {!isLoggedIn && (
           <Route path="/login" component={(props) =>{
-             return <LoginPage{...props} onLoginSuccess={this.onLoginSuccess}/>
+             return <LoginPage {...props} onLoginSuccess={this.onLoginSuccess}/>
           }}
         />
        )}
@@ -49,7 +33,7 @@ class App extends React.Component {
         />
           <Redirect to="/"/>
           </Switch>
-          </HashRouter>
+          </Router>
       <LanguageSelector/>
       </div>
     );
