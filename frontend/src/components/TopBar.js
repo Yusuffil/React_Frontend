@@ -9,9 +9,6 @@ import { logoutSuccess } from '../redux/authActions';
 class TopBar extends Component {
   //  static contextType = Authentication;
 
- //    onClickLogout = () => {
-    //     this.props.dispatch(logoutSuccess());
- ////     }
     render() {
         const { t, username, isLoggedIn, onLogoutSuccess } = this.props;         
         
@@ -65,9 +62,7 @@ const mapStateToProps = (store) => {
 }
 const mapdispatchToProps = dispatch =>{
     return {
-        onLogoutSuccess: function(){
-            return dispatch(logoutSuccess());
-        }
-    }
-}
+        onLogoutSuccess: () => dispatch(logoutSuccess())
+        };
+    };
 export default connect(mapStateToProps, mapdispatchToProps)(TopBarWithTranslation);
