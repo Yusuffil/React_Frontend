@@ -1,47 +1,34 @@
-import React, { Component } from 'react';
-import { signup } from '../api/apiCalls' ;
+import React, { Component, useState } from 'react';
 import Input from '../components/Input';
 import { withTranslation } from 'react-i18next';
 import ButtonWithProggress from '../components/ButtonWithProggress';
 import { withApiProgress } from '../shared/ApiProgress';
 import { connect } from 'react-redux';
 import { signupHandler } from '../redux/authActions';
-class UserSignUpPage extends React.Component{
-  state = {
+const UserSignUpPage = (props) => {
+  const [form, setForm] =useState({
     username: null,
     displayName: null,
     password: null,
-    repassword: null,
-    errors: {}
-  };
+    repassword: null
+  });
+  const [errors, setErrors] = useState({});
 
-    onChange = event => {
-    const { t } = this.props;
-    const{ name, value } = event.target;
-    const errors = {...this.state.errors}
-    errors[name] = undefined
-    if(name === 'password' || name==='repassword'){
-      if(name === 'password'&& value !==this.state.repassword ){
-        errors.repassword = t('Password mismatch');
-      }else if(name === 'repassword' && value !== this.state.password){
-        errors.repassword = t('Password mismatch');
-      }else {
-        errors.repassword = undefined;
-      }
-    }
-      this.setState({
-        [name]: value,
-        errors
-      });
+    const onChange = event => {
+      const{ name, value } = event.target;
+
+      setErrors((previousErrors) => ({...previousErrors, [name]: undefined}));
+    
+      setForm((previousForm) =>({ ...previousForm,[name] : value}));
     };
 
-    onClickSignup = async event =>{
+    const onClickSignup = async event =>{
       event.preventDefault();
       
-      const { history, dispatch } = this.props
+      const { history, dispatch } = props
       const { push } = history;
             
-      const { username, displayName, password } = this.state;
+      const { username, displayName, password } = form;
       const body  = {
       username : username,
       displayName : displayName,
@@ -53,41 +40,41 @@ class UserSignUpPage extends React.Component{
         push('/');
       } catch (error){
       if(error.response.data.validationErrors){
-        this.setState({ errors: error.response.data.validationErrors });
-      }
+        setErrors(error.response.data.validationErrors);
+          }
        
       }
      
   };
 
-  render(){
-    const { t, pendingApiCall } = this.props;
-    const { errors } = this.state;
-    const { username, displayName, password, repassword } = errors;
+    const { username: usernameError, displayName: displayNameError, password: passwordError, repassword: repasswordError } = errors;
+    const { t, pendingApiCall } = props;
+
+    let RepasswordError;
+    if(form.password !== form.RepasswordError){
+      RepasswordError = t('Password mismatch');
+    }
     return(
     <div className = "container">
 
     <form>
 
     <h1 className = "text-center">{t('Sign Up')}</h1>
-    <Input name ="username" label = {t("Username")} error={ username } onChange={this.onChange} />
-    <Input name ="displayName" label = {t("Display Name")} error={ displayName } onChange={this.onChange} />
-    <Input name ="password" label = {t("Password")} error={ password } onChange={this.onChange} type ="password"/>
-    <Input name ="repassword" label = {t("Repassword")} error= { repassword } onChange={this.onChange} type="password"/>
+    <Input name ="username" label = {t("Username")} error={ usernameError } onChange={onChange} />
+    <Input name ="displayName" label = {t("Display Name")} error={ displayNameError} onChange={onChange} />
+    <Input name ="password" label = {t("Password")} error={ passwordError } onChange={onChange} type ="password"/>
+    <Input name ="repassword" label = {t("Repassword")} error= { repasswordError } onChange={onChange} type="password"/>
     
     <div className = "text-center">
     <ButtonWithProggress 
-    onClick = {this.onClickSignup} 
-    disabled = { pendingApiCall || repassword !== undefined }
+    onClick = {onClickSignup} 
+    disabled = { pendingApiCall || repasswordError !== undefined }
     pendingApiCall = {pendingApiCall} 
     text = {t('Sign Up')} 
     />
     </div>
     </form>
     </div>)
-  
-    
-  };
 }
 const UserSignUpPageWithApiProgressForSignupRequest= withApiProgress(UserSignUpPage,'/api/1.0/users');
 const UserSignUpPageWithApiProgressForAuthRequest = withApiProgress(UserSignUpPageWithApiProgressForSignupRequest,'/api/1.0/auth');
